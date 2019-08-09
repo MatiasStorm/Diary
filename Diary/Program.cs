@@ -18,15 +18,9 @@ namespace Diary
     {
         static void Main(string[] args)
         {
-
-
             Console.WriteLine("Hello welcome to your Diary Program");
             Console.WriteLine("Select a function:");
             MainMenu();
-            //Console.ReadKey();
-            //Console.WriteLine("How was your day");
-
-            //Console.ReadKey
         }
 
         static void MainMenu()
