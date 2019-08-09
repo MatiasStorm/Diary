@@ -18,62 +18,54 @@ namespace Diary
     {
         static void Main(string[] args)
         {
-            List<string> functions = new List<string>();
-            functions.Add("New File");
-            functions.Add("Search Files");
-            functions.Add("Edit Files");
-
-            Console.Clear();
-            foreach(string f in functions)
-            {
-                Console.WriteLine(f);
-            }
-            //Console.WriteLine();
-            //Console.Write("input: ");
-
-            var originalpos = Console.CursorTop;
-
-            var k = Console.ReadKey();
-            var conIndex = 1;
-            var funcIndex = functions.Count;
-
-            while (k.KeyChar != 'q')
-            {
-
-                if (k.Key == ConsoleKey.UpArrow)
-                {
-                    funcIndex--;
-
-                    Console.SetCursorPosition(0, Console.CursorTop - conIndex);
-                    Console.ForegroundColor = ConsoleColor.Black;
-                    Console.BackgroundColor = ConsoleColor.White;
-                    Console.WriteLine(functions.ElementAt(funcIndex));
-                    Console.ResetColor();
-                    Console.SetCursorPosition(7, originalpos);
-                    Console.Write(funcIndex);
-                    Console.SetCursorPosition(0, Console.CursorTop - conIndex);
-
-                    conIndex++;
-
-                }
-                if(k.Key == ConsoleKey.Enter)
-                {
-                    Console.SetCursorPosition(0, originalpos + 1);
-                    Console.WriteLine(functions.ElementAt(funcIndex));
-
-                }
-
-                Console.SetCursorPosition(8, originalpos);
-                k = Console.ReadKey();
-            }
 
 
-            //Console.WriteLine("Hello welcome to you Diary Program");
-            //Console.Write("Select a function: n for New File, s for Search, v for View excisting files");
+            Console.WriteLine("Hello welcome to your Diary Program");
+            Console.WriteLine("Select a function:");
+            MainMenu();
             //Console.ReadKey();
             //Console.WriteLine("How was your day");
 
             //Console.ReadKey
+        }
+
+        static void MainMenu()
+        {
+            string[] options = { "New File", "Search Files", "Edit File" };
+            Menu menu = new Menu(options, Console.CursorTop);
+            var k = Console.ReadKey();
+
+            while(k.KeyChar != 'q')
+            {
+                if(k.Key == ConsoleKey.UpArrow)
+                {
+                    menu.Up();
+                }
+                else if(k.Key == ConsoleKey.DownArrow)
+                {
+                    menu.Down();
+                }
+                else if(k.Key == ConsoleKey.Enter)
+                {
+                    menu.ResetCursor();
+                    string option = menu.ReturnSelected();
+                    switch (option)
+                    {
+                        case "New File":
+                            Write();
+                            break;
+                        case "Search Files":
+                            Search();
+                            break;
+                        case "Edit File":
+                            Edit();
+                            break;
+                    }
+                }
+                k = Console.ReadKey();
+                menu.ResetCursor();
+            }
+
         }
 
         static void Write()
