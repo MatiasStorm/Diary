@@ -18,17 +18,31 @@ namespace Diary
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello welcome to your Diary Program");
-            Console.WriteLine("Select a function:");
-            MainMenu();
+            Console.WriteLine("Hello welcome to your Diary Program (Press a key to continue)");
+            ConsoleKeyInfo k = Console.ReadKey();
+            while(k.KeyChar != 'q')
+            {
+                string option = MainMenu(k);
+                switch (option)
+                {
+                    case "New File":
+                        Write();
+                        break;
+                    case "Search Files":
+                        Search();
+                        break;
+                    case "Edit File":
+                        Edit();
+                        break;
+                }
+            }
         }
 
-        static void MainMenu()
+        static string MainMenu(ConsoleKeyInfo k)
         {
             string[] options = { "New File", "Search Files", "Edit File" };
+            Console.WriteLine("(Main menu) Select a function:");
             Menu menu = new Menu(options, Console.CursorTop);
-            var k = Console.ReadKey();
-
             while(k.KeyChar != 'q')
             {
                 if(k.Key == ConsoleKey.UpArrow)
@@ -42,29 +56,22 @@ namespace Diary
                 else if(k.Key == ConsoleKey.Enter)
                 {
                     menu.ResetCursor();
-                    string option = menu.ReturnSelected();
-                    switch (option)
-                    {
-                        case "New File":
-                            Write();
-                            break;
-                        case "Search Files":
-                            Search();
-                            break;
-                        case "Edit File":
-                            Edit();
-                            break;
-                    }
+                    return menu.ReturnSelected();
                 }
                 k = Console.ReadKey();
                 menu.ResetCursor();
             }
-
+            return "q";
         }
 
         static void Write()
         {
-
+            Console.Clear();
+            Console.WriteLine("Opend new document");
+            Console.WriteLine();
+            Console.WriteLine("Headline of the day: ");
+            string headline = Console.ReadLine();
+            Console.WriteLine(headline);
         }
 
         static void Search()
