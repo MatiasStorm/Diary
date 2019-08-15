@@ -9,7 +9,7 @@ namespace Diary
 {
     class DiaryFile
     {
-        private static readonly string folderPath = Environment.CurrentDirectory.Replace("bin\\Debug", "files\\");
+        static readonly string folderPath = Environment.CurrentDirectory.Replace("bin\\Debug", "files\\");
         readonly string fileName;
         readonly string filePath;
         public DiaryFile(string _fileName)
@@ -42,35 +42,71 @@ namespace Diary
         {
             File.AppendAllText(filePath, "h\n");
             File.AppendAllLines(filePath, text);
-            File.AppendAllText(filePath, "\n");
         }
 
         public void WriteMain(List<string> text)
         {
             File.AppendAllText(filePath, "m\n");
             File.AppendAllLines(filePath, text);
-            File.AppendAllText(filePath, "\n");
         }
 
         public void WriteHighlight(List<string> text)
         {
             File.AppendAllText(filePath, "hi\n");
             File.AppendAllLines(filePath, text);
-            File.AppendAllText(filePath, "\n");
         }
 
         public void WriteLowPoint(List<string> text)
         {
             File.AppendAllText(filePath, "l\n");
             File.AppendAllLines(filePath, text);
-            File.AppendAllText(filePath, "\n");
         }
 
         public void WriteRating(List<string> text)
         {
             File.AppendAllText(filePath, "r\n");
             File.AppendAllLines(filePath, text);
-            File.AppendAllText(filePath, "\n");
+            File.AppendAllText(filePath, "END");
         }
+
+        private List<string> TextBetweenHeadlines(string h1, string h2)
+        {
+            List<string> text = new List<string>();
+            StreamReader file = new StreamReader(filePath);
+            string line = file.ReadLine();
+            while (line != h1)
+            {
+                line = file.ReadLine();
+            }
+            while ((line = file.ReadLine()) != h2)
+            {
+                    text.Add(line);
+            }
+            file.Close();
+            return text;
+        }
+
+        public List<string> GetHeadline()
+        {
+            return TextBetweenHeadlines("h", "m");
+        }
+        public List<string> GetMain()
+        {
+            return TextBetweenHeadlines("m", "hi");
+        }
+        public List<string> GetHighligt()
+        {
+            return TextBetweenHeadlines("hi", "l");
+        }
+        public List<string> GetLowPoint()
+        {
+            return TextBetweenHeadlines("l", "r");
+        }
+
+        public List<string> GetRating()
+        {
+            return TextBetweenHeadlines("r", "END");
+        }
+
     }
 }

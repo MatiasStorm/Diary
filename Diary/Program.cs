@@ -53,6 +53,7 @@ namespace Diary
             string[] options = { "New File", "Search Files", "Edit File", "View File"};
             Console.WriteLine("(Main menu) Select a function:");
             Menu menu = new Menu(options, Console.CursorTop);
+            menu.Dispaly();
             return menu.run();
         }
 
@@ -95,7 +96,7 @@ namespace Diary
             else
             {
                 // Possibility to edit
-                Edit(fileName);
+                EditFile(fileName);
             }
         }
 
@@ -139,34 +140,51 @@ namespace Diary
             Console.WriteLine("Edit Menu (Pick a file to edit):");
             Menu menu = new Menu(options, 1);
             menu.AddOption("Go Back");
+            menu.Dispaly();
             string option = menu.run();
             if(option != "q" && option != "Go Back")
             {
-                Edit(option);
+                EditFile(option);
             }
         }
 
-        static void Edit(string fileName)
+        static void EditFile(string fileName)
         {
-            Console.Clear();
-            string[] options = {"Headline", "Main Text", "Highlight", "Low Point", "Rating", "Done Editing!"};
-            Console.WriteLine("Edit Menu, File: " + fileName);
+            string[] options = { "Headline", "Main Text", "Highlight", "Low Point", "Rating", "Done Editing!" };
+            string option = "";
             Menu menu = new Menu(options, 1);
-            string option = menu.run();
-            switch (option)
-            {
-                case "Headline":
-                    break;
-                case "Main Text":
-                    break;
-                case "Low Point":
-                    break;
-                case "Rating":
-                    break;
-                case "Done Editing!":
-                    break;
 
+            while (option != "Done Editing!")
+            {
+                Console.Clear();
+                Console.WriteLine("Edit Menu, File: " + fileName);
+                menu.Dispaly();
+                option = menu.run();
+                if (option != "Done Editing!")
+                {
+                    EditParagraph(fileName, option);
+                }
             }
+        }
+
+        static void EditParagraph(string fileName, string option)
+        {
+            DiaryFile file = new DiaryFile(fileName);
+            Dictionary<string, Func<List<string>>> functions = new Dictionary<string, Func<List<string>>>();
+            functions.Add("Headline", file.GetHeadline);
+            functions.Add("Main Text", file.GetMain);
+            functions.Add("Highlight", file.GetHighligt);
+            functions.Add("Low Point", file.GetLowPoint);
+            functions.Add("Rating", file.GetRating);
+
+            Console.Clear();
+            Console.WriteLine("Editing " + option);
+            List<string> text = functions[option]();
+            foreach (string l in text)
+            {
+                Console.WriteLine(l);
+            }
+            Console.ReadKey();
         }
     }
 }

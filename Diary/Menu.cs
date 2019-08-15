@@ -17,6 +17,11 @@ namespace Diary
             options = _options.ToList();
             startIndex = _startIndex;
             index = startIndex;
+        }
+
+        public void Dispaly()
+        {
+            index = startIndex;
             Console.SetCursorPosition(0, index);
             Console.ForegroundColor = ConsoleColor.White;
             foreach (string f in this.options)
