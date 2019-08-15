@@ -8,16 +8,17 @@ namespace Diary
 {
     class Menu
     {
-        private readonly string[] options;
+        private List<string> options;
         private int index;
         private readonly int startIndex;
-        private readonly int originalPos;
+        private int originalPos;
         public Menu(string[] _options, int _startIndex)
         {
-            options = _options;
+            options = _options.ToList();
             startIndex = _startIndex;
             index = startIndex;
             Console.SetCursorPosition(0, index);
+            Console.ForegroundColor = ConsoleColor.White;
             foreach (string f in this.options)
             {
                 Console.WriteLine(f);
@@ -25,7 +26,16 @@ namespace Diary
             originalPos = Console.CursorTop;
             Console.SetCursorPosition(0, index);
             Select();
-            Console.SetCursorPosition(0, originalPos);
+        }
+
+        public void AddOption(string option)
+        {
+            options.Add(option);
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine(option);
+            originalPos = Console.CursorTop;
+            Console.SetCursorPosition(0, index);
+            Select();
         }
 
         public string run()
@@ -54,7 +64,7 @@ namespace Diary
 
         public void Up()
         {
-            if (index < options.Length + startIndex  && index > startIndex)
+            if (index < options.Count + startIndex  && index > startIndex)
             {
                 Deselect();
                 
@@ -67,11 +77,11 @@ namespace Diary
         }
         public void Down()
         {
-            if(index >= startIndex && index < (options.Length + startIndex)- 1)
+            if(index >= startIndex && index < (options.Count + startIndex)- 1)
             {
                 Deselect();
             }
-            if(index < (options.Length + startIndex) - 1)
+            if(index < (options.Count + startIndex) - 1)
             {
                 index++;
                 Select();

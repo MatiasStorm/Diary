@@ -9,14 +9,24 @@ namespace Diary
 {
     class DiaryFile
     {
-        private readonly string folderPath = Environment.CurrentDirectory.Replace("bin\\Debug", "files");
+        private static readonly string folderPath = Environment.CurrentDirectory.Replace("bin\\Debug", "files\\");
         readonly string fileName;
         readonly string filePath;
         public DiaryFile(string _fileName)
         {
             fileName = _fileName;
             filePath = Path.Combine(folderPath, fileName);
+        }
 
+        public static string[] GetFileNames()
+        {
+            string[] filePaths = Directory.GetFiles(folderPath, "*.txt");
+            string[] fileNames = new string[filePaths.Length];
+            for(int i = 0; i < filePaths.Length; i++)
+            {
+                fileNames[i] = filePaths[i].Replace(folderPath, "");
+            }
+            return fileNames;
         }
 
         public void WriteAll(List<List<string>> text)

@@ -35,7 +35,7 @@ namespace Diary
                         Search();
                         break;
                     case "Edit File":
-                        Edit();
+                        EditMenu();
                         break;
                     case "View File":
                         ViewMenu();
@@ -53,26 +53,7 @@ namespace Diary
             string[] options = { "New File", "Search Files", "Edit File", "View File"};
             Console.WriteLine("(Main menu) Select a function:");
             Menu menu = new Menu(options, Console.CursorTop);
-            ConsoleKeyInfo k = Console.ReadKey();
-            while(k.KeyChar != 'q')
-            {
-                if(k.Key == ConsoleKey.UpArrow)
-                {
-                    menu.Up();
-                }
-                else if(k.Key == ConsoleKey.DownArrow)
-                {
-                    menu.Down();
-                }
-                else if(k.Key == ConsoleKey.Enter)
-                {
-                    menu.ResetCursor();
-                    return menu.ReturnSelected();
-                }
-                k = Console.ReadKey();
-                menu.ResetCursor();
-            }
-            return "q";
+            return menu.run();
         }
 
         static void Write()
@@ -102,10 +83,10 @@ namespace Diary
             }
 
             string k = YesOrNo();
-
+            string fileName = DateTime.Now.ToString().Split(' ')[0] + ".txt";
             if (k == "y" || k == "Y")
             {
-                DiaryFile file = new DiaryFile(DateTime.Now.ToString().Split(' ')[0] + ".txt");
+                DiaryFile file = new DiaryFile(fileName);
                 file.WriteAll(textLists);
 
                 Console.Write("File has been created... (Press key to continue)");
@@ -114,7 +95,7 @@ namespace Diary
             else
             {
                 // Possibility to edit
-                Edit();
+                Edit(fileName);
             }
         }
 
@@ -151,9 +132,41 @@ namespace Diary
 
         }
 
-        static void Edit()
+        static void EditMenu()
         {
+            Console.Clear();
+            string[] options = DiaryFile.GetFileNames();
+            Console.WriteLine("Edit Menu (Pick a file to edit):");
+            Menu menu = new Menu(options, 1);
+            menu.AddOption("Go Back");
+            string option = menu.run();
+            if(option != "q" && option != "Go Back")
+            {
+                Edit(option);
+            }
+        }
 
+        static void Edit(string fileName)
+        {
+            Console.Clear();
+            string[] options = {"Headline", "Main Text", "Highlight", "Low Point", "Rating", "Done Editing!"};
+            Console.WriteLine("Edit Menu, File: " + fileName);
+            Menu menu = new Menu(options, 1);
+            string option = menu.run();
+            switch (option)
+            {
+                case "Headline":
+                    break;
+                case "Main Text":
+                    break;
+                case "Low Point":
+                    break;
+                case "Rating":
+                    break;
+                case "Done Editing!":
+                    break;
+
+            }
         }
     }
 }
