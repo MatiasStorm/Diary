@@ -28,6 +28,30 @@ namespace Diary
             Console.SetCursorPosition(0, originalPos);
         }
 
+        public string run()
+        {
+            ConsoleKeyInfo k = Console.ReadKey();
+            while (k.KeyChar != 'q')
+            {
+                if (k.Key == ConsoleKey.UpArrow)
+                {
+                    Up();
+                }
+                else if (k.Key == ConsoleKey.DownArrow)
+                {
+                    Down();
+                }
+                else if (k.Key == ConsoleKey.Enter)
+                {
+                    ResetCursor();
+                    return ReturnSelected();
+                }
+                k = Console.ReadKey();
+                ResetCursor();
+            }
+            return "q";
+        }
+
         public void Up()
         {
             if (index < options.Length + startIndex  && index > startIndex)
