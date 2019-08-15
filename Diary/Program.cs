@@ -83,7 +83,7 @@ namespace Diary
                 textLists.Add(lines);
             }
 
-            string k = YesOrNo();
+            string k = YesOrNo("Finished Writing?");
             string fileName = DateTime.Now.ToString().Split(' ')[0] + ".txt";
             if (k == "y" || k == "Y")
             {
@@ -100,13 +100,13 @@ namespace Diary
             }
         }
 
-        static string YesOrNo()
+        static string YesOrNo(string message)
         {
             string k = "";
             while (k != "y" && k != "Y" &&
                   k != "n" && k != "N")
             {
-                Console.Write("Finished Writing? [Y/n]: ");
+                Console.Write(message + " [Y/n]: ");
                 int origPos = Console.CursorTop;
                 k = Console.ReadLine();
 
@@ -177,13 +177,14 @@ namespace Diary
             functions.Add("Low Point", file.GetLowPoint);
             functions.Add("Rating", file.GetRating);
 
+            List<string> text = functions[option]();
+
             Console.Clear();
             Console.WriteLine("Editing " + option);
-            List<string> text = functions[option]();
-            foreach (string l in text)
-            {
-                Console.WriteLine(l);
-            }
+
+
+            Editor Editor = new Editor(text, 1);
+            Editor.Display();
             Console.ReadKey();
         }
     }
