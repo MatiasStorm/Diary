@@ -37,6 +37,9 @@ namespace Diary
                     case "Edit File":
                         Edit();
                         break;
+                    case "View File":
+                        ViewMenu();
+                        break;
                     case "q":
                         running = false;
                         break;
@@ -47,7 +50,7 @@ namespace Diary
         static string MainMenu()
         {
             Console.Clear();
-            string[] options = { "New File", "Search Files", "Edit File" };
+            string[] options = { "New File", "Search Files", "Edit File", "View File"};
             Console.WriteLine("(Main menu) Select a function:");
             Menu menu = new Menu(options, Console.CursorTop);
             ConsoleKeyInfo k = Console.ReadKey();
@@ -75,15 +78,14 @@ namespace Diary
         static void Write()
         {
             Console.Clear();
-            Dictionary<string, List<string>> textDict = new Dictionary<string, List<string>>();
-            string[] keys = { "h", "m", "hi", "l", "r" };
             string[] messages = { "Headline of the day:", "Main Text:", "Highlight of the day:", "Low point of the day:", "Rating of the day (1-10):" };
+            List<List<string>> textLists = new List<List<string>>();
 
-            for(int i = 0; i < keys.Length; i++)
+            for(int i = 0; i < messages.Length; i++)
             {
                 Console.WriteLine(messages[i]);
                 List<string> lines = new List<string>();
-                if(keys[i] == "m")
+                if(i == 1)
                 {
                     string line;
                     while((line = Console.ReadLine()) != "")
@@ -96,9 +98,28 @@ namespace Diary
                     lines.Add(Console.ReadLine());
                     Console.WriteLine();
                 }
-                textDict.Add(keys[i], lines);
+                textLists.Add(lines);
             }
 
+            string k = YesOrNo();
+
+            if (k == "y" || k == "Y")
+            {
+                DiaryFile file = new DiaryFile(DateTime.Now.ToString().Split(' ')[0] + ".txt");
+                file.WriteAll(textLists);
+
+                Console.Write("File has been created... (Press key to continue)");
+                Console.ReadKey();
+            }
+            else
+            {
+                // Possibility to edit
+                Edit();
+            }
+        }
+
+        static string YesOrNo()
+        {
             string k = "";
             while (k != "y" && k != "Y" &&
                   k != "n" && k != "N")
@@ -106,28 +127,23 @@ namespace Diary
                 Console.Write("Finished Writing? [Y/n]: ");
                 int origPos = Console.CursorTop;
                 k = Console.ReadLine();
+
+                // Clear line:
                 Console.SetCursorPosition(0, origPos);
                 Console.Write(new string(' ', Console.WindowWidth));
                 Console.SetCursorPosition(0, origPos);
             }
-            if (k == "y" || k == "Y")
-            {
-                string folderPath = Environment.CurrentDirectory.Replace("bin\\Debug", "files");
-                string fileName = DateTime.Now.ToString().Split(' ')[0] + ".txt";
-                string filePath = Path.Combine(folderPath, fileName);
-                foreach(string key in textDict.Keys)
-                {
-                    File.AppendAllText(filePath, key + "\n");
-                    File.AppendAllLines(filePath, textDict[key]);
-                    File.AppendAllText(filePath, "\n");
-                }
-                Console.Write("File has been created... (Press key to continue)");
-                Console.ReadKey();
-            }
-            else
-            {
+            return k;
+        }
 
-            }
+        static void ViewMenu()
+        {
+
+        }
+
+        static void ViewFile()
+        {
+
         }
 
         static void Search()
