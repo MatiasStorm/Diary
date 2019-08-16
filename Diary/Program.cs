@@ -9,7 +9,7 @@ using System.Threading.Tasks;
     - Create a console option selection class, which can return the selected value.
     - Create a diary class for writting in the diary
     - Create a file class for opening, writting and searching files.
- 
+    - Add a settings menu.
      
      */
 
@@ -20,6 +20,8 @@ namespace Diary
         static void Main(string[] args)
         {
             Console.WriteLine("Hello welcome to your Diary Program (Press a key to continue)");
+            string t = "Some text";
+            Console.WriteLine(t.Substring(0,0));
             Console.WriteLine(DateTime.Now.ToString().Split(' ')[0]);
             bool running = true;
             Console.ReadKey();
@@ -183,8 +185,9 @@ namespace Diary
             Console.WriteLine("Editing " + option);
 
 
-            Editor Editor = new Editor(text, 1);
-            Editor.Display();
+            Editor editor = new Editor(text, 1);
+            editor.Display();
+            editor.Run();
             Console.ReadKey();
         }
     }
