@@ -19,11 +19,21 @@ namespace Diary
             startRow = _startRow;
             consoleRow = startRow;
             maxRow = (text.Count - 1) + startRow;
+            AddSpaceToEndOfLines();
         }
+
+        private void AddSpaceToEndOfLines()
+        {
+            for(int i = 0; i < text.Count; i++)
+            {
+                text[i] += " ";
+            }
+        }
+
 
         public void Display()
         {
-            Console.SetCursorPosition(col, consoleRow);
+            SetCursorToCurrentPosition();
             Console.ForegroundColor = ConsoleColor.White;
             foreach (string line in text)
             {
@@ -34,52 +44,58 @@ namespace Diary
 
         public void Run()
         {
-            ConsoleKeyInfo k = Console.ReadKey();
-            while (k.KeyChar != 'q')
+            ConsoleKeyInfo key = Console.ReadKey();
+            while (key.KeyChar != 'q')
             {
-                switch (k.Key)
-                {
-                    case ConsoleKey.UpArrow :
-                        Up();
-                        break;
-                    case ConsoleKey.DownArrow :
-                        Down();
-                        break;
-                    case ConsoleKey.LeftArrow :
-                        Left();
-                        break;
-                    case ConsoleKey.RightArrow :
-                        Right();
-                        break;
-                    case ConsoleKey.Enter :
-                        Enter();
-                        break;
-                    case ConsoleKey.Backspace :
-                        BackSpace();
-                        break;
-                    case ConsoleKey.Spacebar :
-                        Type(' ');
-                        break;
-                    case ConsoleKey.Delete:
-                        Delete();
-                        break;
-                    default:
-                        Type(k.KeyChar);
-                        break;
-                }
-                k = Console.ReadKey();
+                KeyEvents(key);
+                key = Console.ReadKey();
             }
         }
+
+        public void KeyEvents(ConsoleKeyInfo key)
+        {
+            switch (key.Key)
+            {
+                case ConsoleKey.UpArrow:
+                    Up();
+                    break;
+                case ConsoleKey.DownArrow:
+                    Down();
+                    break;
+                case ConsoleKey.LeftArrow:
+                    Left();
+                    break;
+                case ConsoleKey.RightArrow:
+                    Right();
+                    break;
+                case ConsoleKey.Enter:
+                    Enter();
+                    break;
+                case ConsoleKey.Backspace:
+                    BackSpace();
+                    break;
+                case ConsoleKey.Spacebar:
+                    Type(' ');
+                    break;
+                case ConsoleKey.Delete:
+                    Delete();
+                    break;
+                default:
+                    Type(key.KeyChar);
+                    break;
+            }
+        }
+
         private void Select()
         {
             SetCursorStartOfLine();
             WriteDeselected(0, col);
             WriteSelected(col, 1);
             WriteDeselected(col + 1);
-            SetCursorCurrentPosition();
+            SetCursorToCurrentPosition();
         }
 
-        private void SetCursorCurrentPosition()
+        private void SetCursorToCurrentPosition()
         {
             Console.SetCursorPosition(col, consoleRow);
         }
@@ -154,17 +170,17 @@ namespace Diary
 
         public void Left()
         {
-            DecrementCol();
+            DecrementColumn();
             Select();
         }
 
         public void Right()
         {
-            IncrementCol();
+            IncrementColumn();
             Select();
         }
 
-        private void IncrementCol()
+        private void IncrementColumn()
         {
             string line = text[textIndex];
             int lineLength = line.Length - 1;
@@ -172,29 +188,24 @@ namespace Diary
             {
                 col++;
             }
-            else if(col == lineLength && line[lineLength] != ' ')
-            {
-                text[textIndex] += " ";
-                col++;
-            }
         }
 
-        private void DecrementCol()
+        private void DecrementColumn()
         {
             if (col > 0) col--;
         }
 
+        private void SetColumn(int column)
+        {
+            col = column;
+        }
+
         public void Delete()
         {
-            Console.SetCursorPosition(col + 1, consoleRow);
-            Console.BackgroundColor = ConsoleColor.Black;
-            Console.Write(" ");
-            Console.ResetColor();
+            Deselect();
             if (col < text[textIndex].Length - 1)
             {
-                string line = text[textIndex].Substring(0, Math.Max(0, col));
-                line += text[textIndex].Substring(col + 1);
-                text[textIndex] = line;
+                RemoveSelectedFromLine();
                 Select();
             }
             else
@@ -212,48 +223,77 @@ namespace Diary
             }
             else
             {
-                Console.SetCursorPosition(col, consoleRow);
-                Console.BackgroundColor = ConsoleColor.Black;
-                Console.Write(" ");
-                Console.ResetColor();
-                string line = text[textIndex].Substring(0, Math.Max(0, col - 1));
-                line += text[textIndex].Substring(col);
-                text[textIndex] = line;
-                col--;
+                Deselect();
+                RemoveCharBeforeSelected();
+                DecrementColumn();
                 Select();
             }
         }
 
+        private void RemoveCharBeforeSelected()
+        {
+            string line = text[textIndex].Substring(0, Math.Max(0, col - 1));
+            line += text[textIndex].Substring(col);
+            text[textIndex] = line;
+        }
+
+        private void RemoveSelectedFromLine()
+        {
+            string line = text[textIndex].Substring(0, Math.Max(0, col));
+            line += text[textIndex].Substring(col + 1);
+            text[textIndex] = line;
+        }
+
         public void Enter()
         {
-            string newLine = text[textIndex].Substring(col);
+            string newLine = SplitLineAtSelected();
+            AddLineToText(newLine);
+            FillConsoleLineFromSelected(' ');
+            SetColumn(0);
+            IncrementRow();
+            Select();
+        }
+
+        private void FillConsoleLineFromSelected(char character)
+        {
+            Console.SetCursorPosition(col, consoleRow);
+            Console.Write(new string(character, Console.WindowWidth));
+        }
+
+        private string SplitLineAtSelected() // Rename
+        {
+            string lineEnd = text[textIndex].Substring(col);
             text[textIndex] = text[textIndex].Substring(0, col);
-            if(textIndex + 1 == text.Count)
+            if (text[textIndex].Last() != ' ') text[textIndex] += ' ';
+            return lineEnd;
+        }
+
+        private void AddLineToText(string line)
+        {
+            if (textIndex + 1 == text.Count)
             {
-                text.Add(newLine);
+                text.Add(line);
+                maxRow++;
             }
             else
             {
-                text[textIndex + 1] = newLine + text[textIndex + 1];
+                text[textIndex + 1] = line + text[textIndex + 1];
             }
+        }
 
-            Console.SetCursorPosition(col, consoleRow);
-            Console.Write(new string(' ', Console.WindowWidth));
-            col = 0;
-            consoleRow++;
-            textIndex++;
-            maxRow++;
+
+        public void Type(char character)
+        {
+            InsertInSelectedArear(character);
+            IncrementColumn();
             Select();
         }
 
-        public void Type(char letter)
+        public void InsertInSelectedArear(char character)
         {
             string line = text[textIndex].Substring(0, Math.Max(0, col));
-            line += letter + text[textIndex].Substring(col);
+            line += character + text[textIndex].Substring(col);
             text[textIndex] = line;
-            col++;
-            Select();
         }
-        
     }
 }
