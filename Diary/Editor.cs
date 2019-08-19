@@ -9,28 +9,26 @@ namespace Diary
     class Editor
     {
         readonly int startRow;
-        readonly int maxRow;
         List<string> text;
-        private int row, col;
+        private int consoleRow, maxRow;
+        private int col = 0;
+        private int textIndex = 0;
         public Editor(List<string> _text, int _startRow)
         {
-            startRow = _startRow;
-            row = startRow;
-            col = 0;
             text = _text;
-            for (int i = 0; i < text.Count; i++) text[i] += " ";
+            startRow = _startRow;
+            consoleRow = startRow;
             maxRow = (text.Count - 1) + startRow;
         }
 
         public void Display()
         {
-            Console.SetCursorPosition(col, row);
+            Console.SetCursorPosition(col, consoleRow);
             Console.ForegroundColor = ConsoleColor.White;
             foreach (string line in text)
             {
                 Console.WriteLine(line);
             }
-            Console.SetCursorPosition(col, row);
             Select();
         }
 
@@ -39,140 +37,221 @@ namespace Diary
             ConsoleKeyInfo k = Console.ReadKey();
             while (k.KeyChar != 'q')
             {
-                if (k.Key == ConsoleKey.UpArrow)
+                switch (k.Key)
                 {
-                    Up();
-                }
-                else if (k.Key == ConsoleKey.DownArrow)
-                {
-                    Down();
-                }
-                else if (k.Key == ConsoleKey.LeftArrow)
-                {
-                    Left();
-                }
-                else if (k.Key == ConsoleKey.RightArrow)
-                {
-                    Right();
-                }
-                else if (k.Key == ConsoleKey.Enter)
-                {
-                    Enter();
-                }
-                else if (k.Key == ConsoleKey.Backspace)
-                {
-                    BackSpace();
-                }
-                else if (Char.IsLetter(k.KeyChar))
-                {
-                    Type(k.KeyChar);
-                }
-                else if(k.Key == ConsoleKey.Spacebar)
-                {
-                    Type(' ');
+                    case ConsoleKey.UpArrow :
+                        Up();
+                        break;
+                    case ConsoleKey.DownArrow :
+                        Down();
+                        break;
+                    case ConsoleKey.LeftArrow :
+                        Left();
+                        break;
+                    case ConsoleKey.RightArrow :
+                        Right();
+                        break;
+                    case ConsoleKey.Enter :
+                        Enter();
+                        break;
+                    case ConsoleKey.Backspace :
+                        BackSpace();
+                        break;
+                    case ConsoleKey.Spacebar :
+                        Type(' ');
+                        break;
+                    case ConsoleKey.Delete:
+                        Delete();
+                        break;
+                    default:
+                        Type(k.KeyChar);
+                        break;
                 }
                 k = Console.ReadKey();
             }
         }
         private void Select()
         {
-            Console.SetCursorPosition(0, row);
+            SetCursorStartOfLine();
+            WriteDeselected(0, col);
+            WriteSelected(col, 1);
+            WriteDeselected(col + 1);
+            SetCursorCurrentPosition();
+        }
+
+        private void SetCursorCurrentPosition()
+        {
+            Console.SetCursorPosition(col, consoleRow);
+        }
+
+        private void SetCursorStartOfLine()
+        {
+            Console.SetCursorPosition(0, consoleRow);
+        }
+
+        private void WriteDeselected(int start, int nChars)
+        {
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.White;
-            Console.Write(text[row - startRow].Substring(0, col));
+            Console.Write(text[textIndex].Substring(start, nChars));
+        }
 
+        private void WriteDeselected(int start)
+        {
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write(text[textIndex].Substring(start));
+        }
+
+        private void WriteSelected(int start, int nChars)
+        {
             Console.BackgroundColor = ConsoleColor.White;
             Console.ForegroundColor = ConsoleColor.Black;
-            Console.Write(text[row - startRow][col]);
-
-            Console.BackgroundColor = ConsoleColor.Black;
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write(text[row - startRow].Substring(col + 1));
-            Console.SetCursorPosition(col, row);
-            Console.ResetColor();
+            Console.Write(text[textIndex].Substring(start, nChars));
         }
 
         private void Deselect()
         {
-            Console.SetCursorPosition(0, row);
-            Console.BackgroundColor = ConsoleColor.Black;
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write(text[row - startRow]);
+            SetCursorStartOfLine();
+            WriteDeselected(0);
         }
 
         public void Up()
         {
-            if(row > startRow)
-            {
-                Deselect();
-                row -= 1;
-                int lineLength = text[row - startRow].Length - 1;
-                col = col > lineLength ? lineLength : col;
-            }
-                Select();
+            Deselect();
+            DecrementRow();
+            Select();
         }
 
         public void Down()
         {
-            if (row < maxRow)
+            Deselect();
+            IncrementRow();
+            Select();
+        }
+
+        private void IncrementRow()
+        {
+            if (consoleRow < maxRow)
             {
-                Deselect();
-                row += 1;
-                int lineLength = text[row - startRow].Length - 1;
+                consoleRow++;
+                textIndex++;
+                int lineLength = text[textIndex].Length - 1;
                 col = col > lineLength ? lineLength : col;
             }
-                Select();
+        }
+
+        private void DecrementRow()
+        {
+            if(consoleRow > startRow)
+            {
+                consoleRow--;
+                textIndex--;
+                int lineLength = text[textIndex].Length - 1;
+                col = col > lineLength ? lineLength : col;
+            }
         }
 
         public void Left()
         {
-            if(col > 0)
-            {
-                Deselect();
-                col -= 1;
-            }
-                Select();
+            DecrementCol();
+            Select();
         }
 
         public void Right()
         {
-            if(col < text[row - startRow].Length - 1)
-            {
-                Deselect();
-                col += 1;
-            }
+            IncrementCol();
             Select();
+        }
+
+        private void IncrementCol()
+        {
+            string line = text[textIndex];
+            int lineLength = line.Length - 1;
+            if(col < lineLength)
+            {
+                col++;
+            }
+            else if(col == lineLength && line[lineLength] != ' ')
+            {
+                text[textIndex] += " ";
+                col++;
+            }
+        }
+
+        private void DecrementCol()
+        {
+            if (col > 0) col--;
         }
 
         public void Delete()
         {
-
+            Console.SetCursorPosition(col + 1, consoleRow);
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.Write(" ");
+            Console.ResetColor();
+            if (col < text[textIndex].Length - 1)
+            {
+                string line = text[textIndex].Substring(0, Math.Max(0, col));
+                line += text[textIndex].Substring(col + 1);
+                text[textIndex] = line;
+                Select();
+            }
+            else
+            {
+                // Reverse new line.
+            }
         }
 
         public void BackSpace()
         {
-            Console.SetCursorPosition(col, row);
-            Console.BackgroundColor = ConsoleColor.Black;
-            Console.Write(" ");
-            Console.ResetColor();
-            string line = text[row - startRow].Substring(0, Math.Max(0, col - 1));
-            line += text[row - startRow].Substring(col);
-            text[row - startRow] = line;
-            col -= 1;
-            Select();
+            if(col == 0)
+            {
+                // Reverse new line.
+
+            }
+            else
+            {
+                Console.SetCursorPosition(col, consoleRow);
+                Console.BackgroundColor = ConsoleColor.Black;
+                Console.Write(" ");
+                Console.ResetColor();
+                string line = text[textIndex].Substring(0, Math.Max(0, col - 1));
+                line += text[textIndex].Substring(col);
+                text[textIndex] = line;
+                col--;
+                Select();
+            }
         }
 
         public void Enter()
         {
+            string newLine = text[textIndex].Substring(col);
+            text[textIndex] = text[textIndex].Substring(0, col);
+            if(textIndex + 1 == text.Count)
+            {
+                text.Add(newLine);
+            }
+            else
+            {
+                text[textIndex + 1] = newLine + text[textIndex + 1];
+            }
 
+            Console.SetCursorPosition(col, consoleRow);
+            Console.Write(new string(' ', Console.WindowWidth));
+            col = 0;
+            consoleRow++;
+            textIndex++;
+            maxRow++;
+            Select();
         }
 
         public void Type(char letter)
         {
-            string line = text[row- startRow].Substring(0, Math.Max(0, col));
-            line += letter + text[row - startRow].Substring(col);
-            text[row - startRow] = line;
-            col += 1;
+            string line = text[textIndex].Substring(0, Math.Max(0, col));
+            line += letter + text[textIndex].Substring(col);
+            text[textIndex] = line;
+            col++;
             Select();
         }
         
