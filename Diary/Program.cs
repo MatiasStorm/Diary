@@ -17,17 +17,19 @@ namespace Diary
 {
     class Program
     {
+        static bool running = true;
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello welcome to your Diary Program (Press a key to continue)");
-            string t = "Some text";
-            Console.WriteLine(t.Substring(0,0));
-            Console.WriteLine(DateTime.Now.ToString().Split(' ')[0]);
-            bool running = true;
-            Console.ReadKey();
+            WriteMessage("Hello welcome to your Diary Program (Press a key to continue)");
+            WaitForKeyPress();
+            Run();
+        }
+
+        static void Run()
+        {
             while (running)
             {
-                string option = MainMenu();
+                string option = GetOptionFromMainMenu();
                 switch (option)
                 {
                     case "New File":
@@ -49,19 +51,45 @@ namespace Diary
             }
         }
 
-        static string MainMenu()
+        static void WriteMessage(string message)
+        {
+            Console.WriteLine(message);
+        }
+
+        static void WaitForKeyPress()
+        {
+            Console.ReadKey();
+        }
+
+        static void ClearConsole()
         {
             Console.Clear();
-            string[] options = { "New File", "Search Files", "Edit File", "View File"};
-            Console.WriteLine("(Main menu) Select a function:");
+        }
+
+        static string GetOptionFromMainMenu()
+        {
+            ClearConsole();
+
+            string[] mainMenuOptions = { "New File", "Search Files", "Edit File", "View File"};
+            WriteMessage("(Main menu) Select a function:");
+
+            return GetOptionFromMenu(mainMenuOptions);
+
+        }
+
+        static string GetOptionFromMenu(string[] options)
+        {
             Menu menu = new Menu(options, Console.CursorTop);
             menu.Dispaly();
             return menu.run();
         }
 
+
         static void Write()
         {
-            Console.Clear();
+            //Console.Clear();
+            ClearConsole();
+
             string[] messages = { "Headline of the day:", "Main Text:", "Highlight of the day:", "Low point of the day:", "Rating of the day (1-10):" };
             List<List<string>> textLists = new List<List<string>>();
 
@@ -89,8 +117,10 @@ namespace Diary
             string fileName = DateTime.Now.ToString().Split(' ')[0] + ".txt";
             if (k == "y" || k == "Y")
             {
-                DiaryFile file = new DiaryFile(fileName);
-                file.WriteAll(textLists);
+
+                SaveTextToFile(textLists, fileName);
+                //DiaryFile file = new DiaryFile(fileName);
+                //file.WriteAll(textLists);
 
                 Console.Write("File has been created... (Press key to continue)");
                 Console.ReadKey();
@@ -100,6 +130,15 @@ namespace Diary
                 // Possibility to edit
                 EditFile(fileName);
             }
+
+
+        }
+
+        static void SaveTextToFile(List<List<string>> text, string fileName)
+        {
+            DiaryFile file = new DiaryFile(fileName);
+            file.WriteAll(text);
+            
         }
 
         static string YesOrNo(string message)

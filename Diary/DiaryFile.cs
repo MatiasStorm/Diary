@@ -10,8 +10,10 @@ namespace Diary
     class DiaryFile
     {
         static readonly string folderPath = Environment.CurrentDirectory.Replace("bin\\Debug", "files\\");
+        static readonly string[] headlines = { "h", "m", "hi", "l", "r" };
         readonly string fileName;
         readonly string filePath;
+
         public DiaryFile(string _fileName)
         {
             fileName = _fileName;
