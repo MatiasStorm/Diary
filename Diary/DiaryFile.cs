@@ -7,20 +7,10 @@ using System.Threading.Tasks;
 
 namespace Diary
 {
-    class DiaryFile
+    static class DiaryFile
     {
         static readonly string folderPath = Environment.CurrentDirectory.Replace("bin\\Debug", "files\\");
         static readonly string[] headlines = { "h", "m", "hi", "l", "r" };
-        readonly string fileName;
-        readonly string filePath;
-
-
-
-        public DiaryFile(string _fileName)
-        {
-            fileName = _fileName;
-            filePath = Path.Combine(folderPath, fileName);
-        }
 
         public static string[] GetFileNames()
         {
@@ -33,84 +23,88 @@ namespace Diary
             return fileNames;
         }
 
-        public void WriteAll(List<List<string>> text)
+        public static void WriteAll(List<List<string>> text, string fileName)
         {
-            WriteHeadline(text[0]);
-            WriteMain(text[1]);
-            WriteHighlight(text[2]);
-            WriteLowPoint(text[3]);
-            WriteRating(text[4]);
+            string filePath = Path.Combine(folderPath, fileName);
+            WriteHeadline(text[0], filePath);
+            WriteMain(text[1], filePath);
+            WriteHighlight(text[2], filePath);
+            WriteLowPoint(text[3], filePath);
+            WriteRating(text[4], filePath);
         }
 
-        public void WriteHeadline(List<string> text)
+        private static void WriteHeadline(List<string> text, string filePath)
         {
             File.AppendAllText(filePath, "h\n");
             File.AppendAllLines(filePath, text);
         }
 
-        public void WriteMain(List<string> text)
+        private static void WriteMain(List<string> text, string filePath)
         {
             File.AppendAllText(filePath, "m\n");
             File.AppendAllLines(filePath, text);
         }
 
-        public void WriteHighlight(List<string> text)
+        private static void WriteHighlight(List<string> text, string filePath)
         {
             File.AppendAllText(filePath, "hi\n");
             File.AppendAllLines(filePath, text);
         }
 
-        public void WriteLowPoint(List<string> text)
+        private static void WriteLowPoint(List<string> text, string filePath)
         {
             File.AppendAllText(filePath, "l\n");
             File.AppendAllLines(filePath, text);
         }
 
-        public void WriteRating(List<string> text)
+        private static void WriteRating(List<string> text, string filePath)
         {
             File.AppendAllText(filePath, "r\n");
             File.AppendAllLines(filePath, text);
             File.AppendAllText(filePath, "END");
         }
 
-        private List<string> TextBetweenHeadlines(string h1, string h2)
-        {
-            List<string> text = new List<string>();
-            StreamReader file = new StreamReader(filePath);
-            string line = file.ReadLine();
-            while (line != h1)
-            {
-                line = file.ReadLine();
-            }
-            while ((line = file.ReadLine()) != h2)
-            {
-                    text.Add(line);
-            }
-            file.Close();
-            return text;
-        }
 
-        public List<string> GetHeadline()
-        {
-            return TextBetweenHeadlines("h", "m");
-        }
-        public List<string> GetMain()
-        {
-            return TextBetweenHeadlines("m", "hi");
-        }
-        public List<string> GetHighligt()
-        {
-            return TextBetweenHeadlines("hi", "l");
-        }
-        public List<string> GetLowPoint()
-        {
-            return TextBetweenHeadlines("l", "r");
-        }
 
-        public List<string> GetRating()
-        {
-            return TextBetweenHeadlines("r", "END");
-        }
+
+        //private List<string> TextBetweenHeadlines(string h1, string h2)
+        //{
+        //    List<string> text = new List<string>();
+        //    StreamReader file = new StreamReader(filePath);
+        //    string line = file.ReadLine();
+        //    while (line != h1)
+        //    {
+        //        line = file.ReadLine();
+        //    }
+        //    while ((line = file.ReadLine()) != h2)
+        //    {
+        //            text.Add(line);
+        //    }
+        //    file.Close();
+        //    return text;
+        //}
+
+        //public List<string> GetHeadline()
+        //{
+        //    return TextBetweenHeadlines("h", "m");
+        //}
+        //public List<string> GetMain()
+        //{
+        //    return TextBetweenHeadlines("m", "hi");
+        //}
+        //public List<string> GetHighligt()
+        //{
+        //    return TextBetweenHeadlines("hi", "l");
+        //}
+        //public List<string> GetLowPoint()
+        //{
+        //    return TextBetweenHeadlines("l", "r");
+        //}
+
+        //public List<string> GetRating()
+        //{
+        //    return TextBetweenHeadlines("r", "END");
+        //}
 
     }
 }
