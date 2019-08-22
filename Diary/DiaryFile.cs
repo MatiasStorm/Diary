@@ -14,6 +14,7 @@ namespace Diary
         readonly string fileName;
         readonly string filePath;
 
+
         public DiaryFile(string _fileName)
         {
             fileName = _fileName;
