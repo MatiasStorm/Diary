@@ -87,16 +87,20 @@ namespace Diary
 
         static void Write()
         {
-            //Console.Clear();
             ClearConsole();
 
-            string[] messages = { "Headline of the day:", "Main Text:", "Highlight of the day:", "Low point of the day:", "Rating of the day (1-10):" };
-            List<List<string>> textLists = new List<List<string>>();
+            string[] headlines = DiaryFile.GetHeadlinesArray();
 
-            for(int i = 0; i < messages.Length; i++)
+            Dictionary<string, List<string>> headlineTextPairs = new Dictionary<string, List<string>>();
+
+
+            for(int i = 0; i < headlines.Length; i++)
             {
-                Console.WriteLine(messages[i]);
+                string headline = headlines[i];
                 List<string> lines = new List<string>();
+
+                Console.WriteLine(headline);
+
                 if(i == 1)
                 {
                     string line;
@@ -110,7 +114,7 @@ namespace Diary
                     lines.Add(Console.ReadLine());
                     Console.WriteLine();
                 }
-                textLists.Add(lines);
+                headlineTextPairs.Add(headline, lines);
             }
 
             string k = YesOrNo("Finished Writing?");
@@ -118,10 +122,7 @@ namespace Diary
             if (k == "y" || k == "Y")
             {
 
-                SaveTextToFile(textLists, fileName);
-                //DiaryFile file = new DiaryFile(fileName);
-                //file.WriteAll(textLists);
-
+                DiaryFile.SaveToFile(headlineTextPairs, fileName);
                 Console.Write("File has been created... (Press key to continue)");
                 Console.ReadKey();
             }
@@ -132,13 +133,6 @@ namespace Diary
             }
 
 
-        }
-
-        static void SaveTextToFile(List<List<string>> text, string fileName)
-        {
-            DiaryFile file = new DiaryFile(fileName);
-            file.WriteAll(text);
-            
         }
 
         static string YesOrNo(string message)
@@ -179,10 +173,10 @@ namespace Diary
             Console.Clear();
             string[] options = DiaryFile.GetFileNames();
             Console.WriteLine("Edit Menu (Pick a file to edit):");
-            Menu menu = new Menu(options, 1);
-            menu.AddOption("Go Back");
-            menu.Dispaly();
-            string option = menu.run();
+            Menu fileMenu = new Menu(options, 1);
+            fileMenu.AddOption("Go Back");
+            fileMenu.Dispaly();
+            string option = fileMenu.run(); // change to filename
             if(option != "q" && option != "Go Back")
             {
                 EditFile(option);
@@ -191,7 +185,8 @@ namespace Diary
 
         static void EditFile(string fileName)
         {
-            string[] options = { "Headline", "Main Text", "Highlight", "Low Point", "Rating", "Done Editing!" };
+            List<string> options = DiaryFile.GetHeadlinesList();
+            options.Add("Done Editing!");
             string option = "";
             Menu menu = new Menu(options, 1);
 
@@ -208,20 +203,14 @@ namespace Diary
             }
         }
 
-        static void EditParagraph(string fileName, string option)
+        static void EditParagraph(string fileName, string headline)
         {
-            DiaryFile file = new DiaryFile(fileName);
-            Dictionary<string, Func<List<string>>> functions = new Dictionary<string, Func<List<string>>>();
-            functions.Add("Headline", file.GetHeadline);
-            functions.Add("Main Text", file.GetMain);
-            functions.Add("Highlight", file.GetHighligt);
-            functions.Add("Low Point", file.GetLowPoint);
-            functions.Add("Rating", file.GetRating);
+            Dictionary<string, List<string>> headlineTextPairs = DiaryFile.GetHeadlineTextPairs(fileName);
 
-            List<string> text = functions[option]();
+            List<string> text = headlineTextPairs[headline];
 
             Console.Clear();
-            Console.WriteLine("Editing " + option);
+            Console.WriteLine("Editing " + "\'" + headline + "\'");
 
 
             Editor editor = new Editor(text, 1);

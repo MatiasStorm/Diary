@@ -19,6 +19,13 @@ namespace Diary
             index = startIndex;
         }
 
+        public Menu(List<string> _options, int _startIndex)
+        {
+            options = _options;
+            startIndex = _startIndex;
+            index = startIndex;
+        }
+
         public void Dispaly()
         {
             index = startIndex;
