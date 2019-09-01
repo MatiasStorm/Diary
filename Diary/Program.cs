@@ -5,13 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-/* TODO:
-    - Create a console option selection class, which can return the selected value.
-    - Create a diary class for writting in the diary
-    - Create a file class for opening, writting and searching files.
-    - Add a settings menu.
-     
-     */
 
 namespace Diary
 {
@@ -78,6 +71,13 @@ namespace Diary
         }
 
         static string GetOptionFromMenu(string[] options)
+        {
+            Menu menu = new Menu(options, Console.CursorTop);
+            menu.Dispaly();
+            return menu.run();
+        }
+
+        static string GetOptionFromMenu(List<string> options)
         {
             Menu menu = new Menu(options, Console.CursorTop);
             menu.Dispaly();
@@ -170,14 +170,14 @@ namespace Diary
 
         static void EditMenu()
         {
-            Console.Clear();
-            string[] options = DiaryFile.GetFileNames();
-            Console.WriteLine("Edit Menu (Pick a file to edit):");
-            Menu fileMenu = new Menu(options, 1);
-            fileMenu.AddOption("Go Back");
-            fileMenu.Dispaly();
-            string option = fileMenu.run(); // change to filename
-            if(option != "q" && option != "Go Back")
+            ClearConsole();
+            WriteMessage("Edit Menu (Pick a file to edit):");
+
+            List<string> options = DiaryFile.GetFileNames();
+            options.Add("Go Back");
+            string option = GetOptionFromMenu(options);
+
+            if (option != "q" && option != "Go Back")
             {
                 EditFile(option);
             }

@@ -24,13 +24,13 @@ namespace Diary
             return headlinesList;
         }
 
-        public static string[] GetFileNames()
+        public static List<string> GetFileNames()
         {
             string[] filePaths = Directory.GetFiles(folderPath, "*.txt");
-            string[] fileNames = new string[filePaths.Length];
+            List<string> fileNames = new List<string>();
             for(int i = 0; i < filePaths.Length; i++)
             {
-                fileNames[i] = filePaths[i].Replace(folderPath, "");
+                fileNames.Add(filePaths[i].Replace(folderPath, ""));
             }
             return fileNames;
         }
@@ -62,16 +62,6 @@ namespace Diary
         {
             Dictionary<string, List<string>> headlineTextPairs = new Dictionary<string, List<string>>();
             string filePath = GetFilePath(fileName);
-
-
-            /*  */
-            //StreamReader file = new StreamReader(filePath);
-            //string line = file.ReadLine();
-            //while((line = file.ReadLine()) != null)
-            //{
-
-            //}
-
 
             foreach (string headline in headlines)
             {
