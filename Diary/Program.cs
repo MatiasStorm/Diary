@@ -110,9 +110,7 @@ namespace Diary
         static Dictionary<string, List<string>> WriteTextToHeadlines()
         {
             string[] headlines = DiaryFile.GetHeadlinesArray();
-
             Dictionary<string, List<string>> headlineTextPairs = new Dictionary<string, List<string>>();
-
 
             for (int i = 0; i < headlines.Length; i++)
             {
