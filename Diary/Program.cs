@@ -88,23 +88,43 @@ namespace Diary
         static void Write()
         {
             ClearConsole();
+            Dictionary<string, List<string>> headlineTextPairs = WriteTextToHeadlines();
 
+            string fileName = DateTime.Now.ToString().Split(' ')[0] + ".txt";
+            SaveToFile(headlineTextPairs, fileName);
+
+            string yOrN = YesOrNo("Finished Writing?");
+            if (yOrN == "n" || yOrN == "N")
+            {
+                EditFile(fileName);
+            }
+            else
+            {
+                WriteMessage("File has been created... (Press key to continue)");
+                WaitForKeyPress();
+            }
+        }
+
+
+
+        static Dictionary<string, List<string>> WriteTextToHeadlines()
+        {
             string[] headlines = DiaryFile.GetHeadlinesArray();
 
             Dictionary<string, List<string>> headlineTextPairs = new Dictionary<string, List<string>>();
 
 
-            for(int i = 0; i < headlines.Length; i++)
+            for (int i = 0; i < headlines.Length; i++)
             {
                 string headline = headlines[i];
                 List<string> lines = new List<string>();
 
                 Console.WriteLine(headline);
 
-                if(i == 1)
+                if (i == 1)
                 {
                     string line;
-                    while((line = Console.ReadLine()) != "")
+                    while ((line = Console.ReadLine()) != "")
                     {
                         lines.Add(line);
                     }
@@ -116,23 +136,12 @@ namespace Diary
                 }
                 headlineTextPairs.Add(headline, lines);
             }
-
-            string k = YesOrNo("Finished Writing?");
-            string fileName = DateTime.Now.ToString().Split(' ')[0] + ".txt";
-            if (k == "y" || k == "Y")
-            {
-
-                DiaryFile.SaveToFile(headlineTextPairs, fileName);
-                Console.Write("File has been created... (Press key to continue)");
-                Console.ReadKey();
-            }
-            else
-            {
-                // Possibility to edit
-                EditFile(fileName);
-            }
-
-
+            return headlineTextPairs;
+        }
+        
+        static void SaveToFile(Dictionary<string, List<string>> headlineTextPairs, string fileName)
+        {
+            DiaryFile.SaveToFile(headlineTextPairs, fileName);
         }
 
         static string YesOrNo(string message)
@@ -141,16 +150,19 @@ namespace Diary
             while (k != "y" && k != "Y" &&
                   k != "n" && k != "N")
             {
-                Console.Write(message + " [Y/n]: ");
-                int origPos = Console.CursorTop;
+                WriteMessage(message + " [Y/n]: ");
                 k = Console.ReadLine();
+                ClearLineFromCurrentPosition();
+            }
+            return k;
+        }
 
-                // Clear line:
+        static void ClearLineFromCurrentPosition()
+        {
+                int origPos = Console.CursorTop;
                 Console.SetCursorPosition(0, origPos);
                 Console.Write(new string(' ', Console.WindowWidth));
                 Console.SetCursorPosition(0, origPos);
-            }
-            return k;
         }
 
         static void ViewMenu()
@@ -188,35 +200,37 @@ namespace Diary
             List<string> options = DiaryFile.GetHeadlinesList();
             options.Add("Done Editing!");
             string option = "";
-            Menu menu = new Menu(options, 1);
 
             while (option != "Done Editing!")
             {
-                Console.Clear();
-                Console.WriteLine("Edit Menu, File: " + fileName);
-                menu.Dispaly();
-                option = menu.run();
+                ClearConsole();
+                WriteMessage("Edit Menu, File: " + fileName);
+                option = GetOptionFromMenu(options);
                 if (option != "Done Editing!")
                 {
-                    EditParagraph(fileName, option);
+                    DisplayEditor(fileName, option);
                 }
             }
         }
 
-        static void EditParagraph(string fileName, string headline)
+        static void DisplayEditor(string fileName, string headline)
         {
+            ClearConsole();
+            WriteMessage("Editing " + "\'" + headline + "\'");
+
             Dictionary<string, List<string>> headlineTextPairs = DiaryFile.GetHeadlineTextPairs(fileName);
+            List<string> Lines = headlineTextPairs[headline];
+            EditLines(Lines);
 
-            List<string> text = headlineTextPairs[headline];
+            WaitForKeyPress();
+        }
 
-            Console.Clear();
-            Console.WriteLine("Editing " + "\'" + headline + "\'");
+        static void EditLines(List<string> lines)
+        {
 
-
-            Editor editor = new Editor(text, 1);
+            Editor editor = new Editor(lines, 1);
             editor.Display();
             editor.Run();
-            Console.ReadKey();
         }
     }
 }
