@@ -235,6 +235,7 @@ namespace Diary
         {
             if(col == 0)
             {
+                /* REFACTOR!!! */
                 ClearLine(text.Count - 1);
                 string line = text[textIndex];
                 text.Remove(line);
@@ -279,11 +280,27 @@ namespace Diary
         public void Enter()
         {
             string newLine = SplitLineAtSelected();
-            AddLineToText(newLine);
+            //AddLineToText(newLine);
+            text.Insert(textIndex + 1, newLine);
+            maxRow++;
+
+            ClearConsoleFromSelected();
+
             FillConsoleLineFromSelected(' ');
             SetColumn(0);
             IncrementRow();
+
+            Display();
+
             Select();
+        }
+
+        private void ClearConsoleFromSelected()
+        {
+            for(int row = consoleRow; row < maxRow; row++)
+            {
+                ClearLine(row);
+            }
         }
 
         private void FillConsoleLineFromSelected(char character)
@@ -296,7 +313,11 @@ namespace Diary
         {
             string lineEnd = text[textIndex].Substring(col);
             text[textIndex] = text[textIndex].Substring(0, col);
-            if(text[textIndex].Last() != ' ')
+            if(text[textIndex].Length == 0)
+            {
+                text[textIndex] += ' ';
+            }
+            else if(text[textIndex].Last() != ' ')
             {
                 text[textIndex] += ' ';
             }
@@ -305,6 +326,7 @@ namespace Diary
 
         private void AddLineToText(string line)
         {
+            text.Insert(0, line);
             if (textIndex + 1 == text.Count)
             {
                 text.Add(line);
