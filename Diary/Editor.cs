@@ -33,13 +33,18 @@ namespace Diary
 
         public void Display()
         {
-            SetCursorToCurrentPosition();
+            SetCursorToStartPosition();
             Console.ForegroundColor = ConsoleColor.White;
             foreach (string line in text)
             {
                 Console.WriteLine(line);
             }
             Select();
+        }
+
+        private void SetCursorToStartPosition()
+        {
+            Console.SetCursorPosition(0, startRow);
         }
 
         public void Run()
@@ -187,12 +192,24 @@ namespace Diary
             if(col < lineLength)
             {
                 col++;
+            } else if (consoleRow < maxRow)
+            {
+                IncrementRow();
+                SetColumn(0);
             }
         }
 
         private void DecrementColumn()
         {
-            if (col > 0) col--;
+            if (col > 0)
+            {
+                col--;
+            } else if (consoleRow > startRow)
+            {
+                Deselect();
+                DecrementRow();
+                SetColumn(text[textIndex].Length - 1);
+            }
         }
 
         private void SetColumn(int column)
@@ -218,7 +235,16 @@ namespace Diary
         {
             if(col == 0)
             {
-                // Reverse new line.
+                ClearLine(text.Count - 1);
+                string line = text[textIndex];
+                text.Remove(line);
+                DecrementRow();
+                SetColumn(text[textIndex].Length);
+                maxRow--;
+                text[textIndex] += line;
+
+                Display();
+                Select();
 
             }
             else
@@ -228,6 +254,12 @@ namespace Diary
                 DecrementColumn();
                 Select();
             }
+        }
+
+        private void ClearLine(int lineIndex)
+        {
+            Console.SetCursorPosition(0, lineIndex + startRow);
+            Console.WriteLine(new String(' ', Console.WindowWidth));
         }
 
         private void RemoveCharBeforeSelected()
@@ -264,7 +296,10 @@ namespace Diary
         {
             string lineEnd = text[textIndex].Substring(col);
             text[textIndex] = text[textIndex].Substring(0, col);
-            if (text[textIndex].Last() != ' ') text[textIndex] += ' ';
+            if(text[textIndex].Last() != ' ')
+            {
+                text[textIndex] += ' ';
+            }
             return lineEnd;
         }
 
