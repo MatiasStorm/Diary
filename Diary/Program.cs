@@ -226,14 +226,22 @@ namespace Diary
 
         static void DisplayEditor(string fileName, string headline)
         {
-            ClearConsole();
-            WriteMessage("Editing " + "\'" + headline + "\'\n");
+            string yOrN = "";
+            while (yOrN != "y" && yOrN != "Y")
+            {
+                ClearConsole();
+                WriteMessage("Editing " + "\'" + headline + "\' (Press 'Esc' to exit)\n");
 
-            Dictionary<string, List<string>> headlineTextPairs = DiaryFile.GetHeadlineTextPairs(fileName);
-            List<string> Lines = headlineTextPairs[headline];
-            EditLines(Lines);
+                Dictionary<string, List<string>> headlineTextPairs = DiaryFile.GetHeadlineTextPairs(fileName);
+                List<string> Lines = headlineTextPairs[headline];
+                EditLines(Lines);
 
-            WaitForKeyPress();
+                yOrN = YesOrNo("Done editing? ");
+            }
+            yOrN = YesOrNo("Do you want to save the changes? ");
+            /* Save the changes to file */
+
+
         }
 
         static void EditLines(List<string> lines)
@@ -242,6 +250,8 @@ namespace Diary
             Editor editor = new Editor(lines, 1);
             editor.Display();
             editor.Run();
+            
+            Console.SetCursorPosition(0, editor.MaxRow + 2);
         }
     }
 }

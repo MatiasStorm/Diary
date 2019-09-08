@@ -11,6 +11,12 @@ namespace Diary
         readonly int startRow;
         List<string> text;
         private int consoleRow, maxRow;
+        public int MaxRow {
+            get
+            {
+                return this.maxRow;
+            }
+        }
         private int column = 0;
         private int textIndex = 0;
         public Editor(List<string> _text, int _startRow)
@@ -29,7 +35,6 @@ namespace Diary
                 text[i] += " ";
             }
         }
-
 
         public void Display()
         {
@@ -50,11 +55,14 @@ namespace Diary
         public void Run()
         {
             ConsoleKeyInfo key = Console.ReadKey();
-            while (key.KeyChar != 'q')
+            do
             {
                 KeyEvents(key);
                 key = Console.ReadKey();
-            }
+            } while (key.Key != ConsoleKey.Escape);
+
+            SetCursorStartOfLine();
+            WriteDeselected(0);
         }
 
         public void KeyEvents(ConsoleKeyInfo key)
