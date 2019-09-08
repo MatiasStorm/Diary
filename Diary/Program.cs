@@ -13,7 +13,7 @@ namespace Diary
         static bool running = true;
         static void Main(string[] args)
         {
-            WriteMessage("Hello welcome to your Diary Program (Press a key to continue)");
+            WriteMessage("Hello welcome to your Diary Program (Press a key to continue): \n");
             WaitForKeyPress();
             Run();
         }
@@ -46,7 +46,7 @@ namespace Diary
 
         static void WriteMessage(string message)
         {
-            Console.WriteLine(message);
+            Console.Write(message);
         }
 
         static void WaitForKeyPress()
@@ -64,7 +64,7 @@ namespace Diary
             ClearConsole();
 
             string[] mainMenuOptions = { "New File", "Search Files", "Edit File", "View File"};
-            WriteMessage("(Main menu) Select a function:");
+            WriteMessage("(Main menu) Select a function:\n");
 
             return GetOptionFromMenu(mainMenuOptions);
 
@@ -74,14 +74,14 @@ namespace Diary
         {
             Menu menu = new Menu(options, Console.CursorTop);
             menu.Dispaly();
-            return menu.run();
+            return menu.Run();
         }
 
         static string GetOptionFromMenu(List<string> options)
         {
             Menu menu = new Menu(options, Console.CursorTop);
             menu.Dispaly();
-            return menu.run();
+            return menu.Run();
         }
 
 
@@ -100,7 +100,7 @@ namespace Diary
             }
             else
             {
-                WriteMessage("File has been created... (Press key to continue)");
+                WriteMessage("File has been created... (Press key to continue)\n");
                 WaitForKeyPress();
             }
         }
@@ -181,7 +181,7 @@ namespace Diary
         static void EditMenu()
         {
             ClearConsole();
-            WriteMessage("Edit Menu (Pick a file to edit):");
+            WriteMessage("Edit Menu (Pick a file to edit):\n");
 
             List<string> options = DiaryFile.GetFileNames();
             options.Add("Go Back");
@@ -202,7 +202,7 @@ namespace Diary
             while (option != "Done Editing!")
             {
                 ClearConsole();
-                WriteMessage("Edit Menu, File: " + fileName);
+                WriteMessage("Edit Menu, File: " + fileName + "\n");
                 option = GetOptionFromMenu(options);
                 if (option != "Done Editing!")
                 {
@@ -214,7 +214,7 @@ namespace Diary
         static void DisplayEditor(string fileName, string headline)
         {
             ClearConsole();
-            WriteMessage("Editing " + "\'" + headline + "\'");
+            WriteMessage("Editing " + "\'" + headline + "\'\n");
 
             Dictionary<string, List<string>> headlineTextPairs = DiaryFile.GetHeadlineTextPairs(fileName);
             List<string> Lines = headlineTextPairs[headline];

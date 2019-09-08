@@ -50,7 +50,7 @@ namespace Diary
             Select();
         }
 
-        public string run()
+        public string Run()
         {
             ConsoleKeyInfo k = Console.ReadKey();
             while (k.KeyChar != 'q')

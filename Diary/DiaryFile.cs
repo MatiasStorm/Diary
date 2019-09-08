@@ -54,7 +54,7 @@ namespace Diary
         {
             File.AppendAllText(filePath, headline + "\n");
             File.AppendAllLines(filePath, lines);
-            File.AppendAllText(filePath, "");
+            File.AppendAllText(filePath, "\n");
         }
 
 
