@@ -37,6 +37,9 @@ namespace Diary
                     case "View File":
                         ViewMenu();
                         break;
+                    case "Edit Today's File":
+                        EditFile(TodaysFileName());
+                        break;
                     case "q":
                         running = false;
                         break;
@@ -63,11 +66,21 @@ namespace Diary
         {
             ClearConsole();
 
-            string[] mainMenuOptions = { "New File", "Search Files", "Edit File", "View File"};
+            string[] mainMenuOptions = { TodaysFileExcists() ? "Edit Today's File" : "New File",
+                                         "Search Files", "Edit File", "View File"};
             WriteMessage("(Main menu) Select a function:\n");
 
             return GetOptionFromMenu(mainMenuOptions);
+        }
 
+        static bool TodaysFileExcists()
+        {
+            return DiaryFile.GetFileNames().Contains(TodaysFileName());
+        }
+
+        static string TodaysFileName()
+        {
+            return DateTime.Now.ToString().Split(' ')[0] + ".txt";
         }
 
         static string GetOptionFromMenu(string[] options)
@@ -90,7 +103,7 @@ namespace Diary
             ClearConsole();
             Dictionary<string, List<string>> headlineTextPairs = WriteTextToHeadlines();
 
-            string fileName = DateTime.Now.ToString().Split(' ')[0] + ".txt";
+            string fileName = TodaysFileName();
             SaveToFile(headlineTextPairs, fileName);
 
             string yOrN = YesOrNo("Finished Writing?");
