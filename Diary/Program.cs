@@ -178,12 +178,45 @@ namespace Diary
 
         static void ViewMenu()
         {
-
+            string option = "";
+            while(option != "q" && option != "Go Back")
+            {
+                ClearConsole();
+                WriteMessage("View Menu (Pick a file to view):\n");
+                option = FileMenu();
+                if(option != "q" && option != "Go Back")
+                {
+                    ViewFile(option);
+                }
+            }
         }
 
-        static void ViewFile()
+        static string FileMenu()
         {
+            List<string> options = DiaryFile.GetFileNames();
+            options.Add("Go Back");
+            return GetOptionFromMenu(options);
+        }
 
+        static void ViewFile(string fileName)
+        {
+            ClearConsole();
+            WriteMessage("Viewing file: " + fileName + " (Press a key to exit)\n");
+            Dictionary<string, List<string>>headlineTextPairs = DiaryFile.GetHeadlineTextPairs(fileName);
+            string[] headlines = headlineTextPairs.Keys.ToArray();
+            List<string>[] text = headlineTextPairs.Values.ToArray();
+            for (int i = 0; i < headlines.Length; i++)
+            {
+                string headline = headlines[i];
+                List<string> paragraph = text[i];
+                WriteMessage(headline + "\n");
+                foreach(string line in paragraph)
+                {
+                    WriteMessage(line + "\n");
+                }
+                WriteMessage("\n");
+            }
+            WaitForKeyPress();
         }
 
         static void Search()
@@ -196,9 +229,7 @@ namespace Diary
             ClearConsole();
             WriteMessage("Edit Menu (Pick a file to edit):\n");
 
-            List<string> options = DiaryFile.GetFileNames();
-            options.Add("Go Back");
-            string option = GetOptionFromMenu(options);
+            string option = FileMenu();
 
             if (option != "q" && option != "Go Back")
             {
@@ -226,22 +257,32 @@ namespace Diary
 
         static void DisplayEditor(string fileName, string headline)
         {
+            Dictionary<string, List<string>> headlineTextPairs = DiaryFile.GetHeadlineTextPairs(fileName);
+            List<string> lines = headlineTextPairs[headline];
+            DisplayEditor(headline, lines);
+            SaveChanges(headlineTextPairs, fileName);
+        }
+
+        static void DisplayEditor(string headline, List<string> lines)
+        {
             string yOrN = "";
             while (yOrN != "y" && yOrN != "Y")
             {
                 ClearConsole();
                 WriteMessage("Editing " + "\'" + headline + "\' (Press 'Esc' to exit)\n");
-
-                Dictionary<string, List<string>> headlineTextPairs = DiaryFile.GetHeadlineTextPairs(fileName);
-                List<string> Lines = headlineTextPairs[headline];
-                EditLines(Lines);
-
+                EditLines(lines);
                 yOrN = YesOrNo("Done editing? ");
             }
-            yOrN = YesOrNo("Do you want to save the changes? ");
-            /* Save the changes to file */
+        }
 
-
+        static void SaveChanges(Dictionary<string, List<string>> headlineTextPairs, string fileName)
+        {
+            string yOrN = YesOrNo("Do you want to save the changes? ");
+            if (yOrN == "y" || yOrN == "Y")
+            {
+                DiaryFile.RemoveFile(fileName);
+                SaveToFile(headlineTextPairs, fileName);
+            }
         }
 
         static void EditLines(List<string> lines)

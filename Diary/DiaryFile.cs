@@ -32,6 +32,7 @@ namespace Diary
             {
                 fileNames.Add(filePaths[i].Replace(folderPath, ""));
             }
+            fileNames.Reverse();
             return fileNames;
         }
 
@@ -87,6 +88,11 @@ namespace Diary
             }
             file.Close();
             return lines;
+        }
+
+        public static void RemoveFile(string fileName)
+        {
+            File.Delete(GetFilePath(fileName));
         }
     }
 }
