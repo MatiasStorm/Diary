@@ -225,9 +225,11 @@ namespace Diary
                 RemoveCharcterFromSelectedLine(column);
                 Select();
             }
-            else
+            else if(consoleRow < maxRow)
             {
-                // Reverse new line.
+                ClearConsoleFromLine(startRow);
+                MergeLines(textIndex, textIndex + 1);
+                Display();
             }
         }
 
@@ -237,7 +239,7 @@ namespace Diary
             {
                 ClearConsoleFromLine(startRow);
                 SetColumn(text[textIndex - 1].Length);
-                MergeLines(textIndex, textIndex - 1);                
+                MergeLines(textIndex - 1, textIndex);                
                 DecrementRow();
                 Display();
             }
@@ -250,12 +252,12 @@ namespace Diary
             }
         }
 
-        private void MergeLines(int first, int second)
+        private void MergeLines(int first, int last)
         {
-                string line = text[first];
+                string line = text[last];
                 text.Remove(line);
                 maxRow--;
-                text[second] += line;
+                text[first] += line;
         }
 
         private void RemoveCharcterFromSelectedLine(int col)
