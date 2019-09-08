@@ -11,7 +11,7 @@ namespace Diary
         readonly int startRow;
         List<string> text;
         private int consoleRow, maxRow;
-        private int col = 0;
+        private int column = 0;
         private int textIndex = 0;
         public Editor(List<string> _text, int _startRow)
         {
@@ -94,15 +94,15 @@ namespace Diary
         private void Select()
         {
             SetCursorStartOfLine();
-            WriteDeselected(0, col);
-            WriteSelected(col, 1);
-            WriteDeselected(col + 1);
+            WriteDeselected(0, column);
+            WriteSelected(column, 1);
+            WriteDeselected(column + 1);
             SetCursorToCurrentPosition();
         }
 
         private void SetCursorToCurrentPosition()
         {
-            Console.SetCursorPosition(col, consoleRow);
+            Console.SetCursorPosition(column, consoleRow);
         }
 
         private void SetCursorStartOfLine()
@@ -158,7 +158,7 @@ namespace Diary
                 consoleRow++;
                 textIndex++;
                 int lineLength = text[textIndex].Length - 1;
-                col = col > lineLength ? lineLength : col;
+                column = column > lineLength ? lineLength : column;
             }
         }
 
@@ -169,7 +169,7 @@ namespace Diary
                 consoleRow--;
                 textIndex--;
                 int lineLength = text[textIndex].Length - 1;
-                col = col > lineLength ? lineLength : col;
+                column = column > lineLength ? lineLength : column;
             }
         }
 
@@ -189,9 +189,9 @@ namespace Diary
         {
             string line = text[textIndex];
             int lineLength = line.Length - 1;
-            if(col < lineLength)
+            if(column < lineLength)
             {
-                col++;
+                column++;
             } else if (consoleRow < maxRow)
             {
                 IncrementRow();
@@ -201,9 +201,9 @@ namespace Diary
 
         private void DecrementColumn()
         {
-            if (col > 0)
+            if (column > 0)
             {
-                col--;
+                column--;
             } else if (consoleRow > startRow)
             {
                 Deselect();
@@ -212,17 +212,17 @@ namespace Diary
             }
         }
 
-        private void SetColumn(int column)
+        private void SetColumn(int value)
         {
-            col = column;
+            column = value;
         }
 
         public void Delete()
         {
             Deselect();
-            if (col < text[textIndex].Length - 1)
+            if (column < text[textIndex].Length - 1)
             {
-                RemoveSelectedFromLine();
+                RemoveCharcterFromSelectedLine(column);
                 Select();
             }
             else
@@ -233,44 +233,32 @@ namespace Diary
 
         public void BackSpace()
         {
-            if(col == 0)
+            if(column == 0 && consoleRow > startRow)
             {
-                /* REFACTOR!!! */
-                ClearLine(text.Count - 1);
-                string line = text[textIndex];
-                text.Remove(line);
+                ClearConsoleFromLine(startRow);
+                SetColumn(text[textIndex - 1].Length);
+                MergeLines(textIndex, textIndex - 1);                
                 DecrementRow();
-                SetColumn(text[textIndex].Length);
-                maxRow--;
-                text[textIndex] += line;
-
                 Display();
-                Select();
-
             }
             else
             {
                 Deselect();
-                RemoveCharBeforeSelected();
+                RemoveCharcterFromSelectedLine(column - 1);
                 DecrementColumn();
                 Select();
             }
         }
 
-        private void ClearLine(int lineIndex)
+        private void MergeLines(int first, int second)
         {
-            Console.SetCursorPosition(0, lineIndex + startRow);
-            Console.WriteLine(new String(' ', Console.WindowWidth));
+                string line = text[first];
+                text.Remove(line);
+                maxRow--;
+                text[second] += line;
         }
 
-        private void RemoveCharBeforeSelected()
-        {
-            string line = text[textIndex].Substring(0, Math.Max(0, col - 1));
-            line += text[textIndex].Substring(col);
-            text[textIndex] = line;
-        }
-
-        private void RemoveSelectedFromLine()
+        private void RemoveCharcterFromSelectedLine(int col)
         {
             string line = text[textIndex].Substring(0, Math.Max(0, col));
             line += text[textIndex].Substring(col + 1);
@@ -280,39 +268,33 @@ namespace Diary
         public void Enter()
         {
             string newLine = SplitLineAtSelected();
-            //AddLineToText(newLine);
             text.Insert(textIndex + 1, newLine);
             maxRow++;
 
-            ClearConsoleFromSelected();
-
-            FillConsoleLineFromSelected(' ');
+            ClearConsoleFromLine(consoleRow - 1);
             SetColumn(0);
             IncrementRow();
-
             Display();
-
-            Select();
         }
 
-        private void ClearConsoleFromSelected()
+        private void ClearConsoleFromLine(int lineNumber)
         {
-            for(int row = consoleRow; row < maxRow; row++)
+            for(int row = lineNumber; row < maxRow; row++)
             {
                 ClearLine(row);
             }
         }
 
-        private void FillConsoleLineFromSelected(char character)
+        private void ClearLine(int lineIndex)
         {
-            Console.SetCursorPosition(col, consoleRow);
-            Console.Write(new string(character, Console.WindowWidth));
+            Console.SetCursorPosition(0, lineIndex + startRow);
+            Console.WriteLine(new String(' ', Console.WindowWidth));
         }
 
         private string SplitLineAtSelected() // Rename
         {
-            string lineEnd = text[textIndex].Substring(col);
-            text[textIndex] = text[textIndex].Substring(0, col);
+            string lineEnd = text[textIndex].Substring(column);
+            text[textIndex] = text[textIndex].Substring(0, column);
             if(text[textIndex].Length == 0)
             {
                 text[textIndex] += ' ';
@@ -324,21 +306,6 @@ namespace Diary
             return lineEnd;
         }
 
-        private void AddLineToText(string line)
-        {
-            text.Insert(0, line);
-            if (textIndex + 1 == text.Count)
-            {
-                text.Add(line);
-                maxRow++;
-            }
-            else
-            {
-                text[textIndex + 1] = line + text[textIndex + 1];
-            }
-        }
-
-
         public void Type(char character)
         {
             InsertInSelectedArear(character);
@@ -348,8 +315,8 @@ namespace Diary
 
         public void InsertInSelectedArear(char character)
         {
-            string line = text[textIndex].Substring(0, Math.Max(0, col));
-            line += character + text[textIndex].Substring(col);
+            string line = text[textIndex].Substring(0, Math.Max(0, column));
+            line += character + text[textIndex].Substring(column);
             text[textIndex] = line;
         }
     }
