@@ -94,5 +94,25 @@ namespace Diary
         {
             File.Delete(GetFilePath(fileName));
         }
+
+        public static List<string> GetFilesContaining(string phrase)
+        {
+            List<string> files = GetFileNames();
+            List<string> hits = new List<string>();
+            foreach (string file in files)
+            {
+                string path = GetFilePath(file);
+                string[] lines = File.ReadAllLines(path);
+                foreach(string line in lines)
+                {
+                    if (line.Contains(phrase))
+                    {
+                        hits.Add(file);
+                        break;
+                    }
+                }
+            }
+            return hits;
+        }
     }
 }

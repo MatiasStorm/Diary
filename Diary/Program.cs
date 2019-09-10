@@ -194,8 +194,21 @@ namespace Diary
         static string FileMenu()
         {
             List<string> options = DiaryFile.GetFileNames();
-            options.Add("Go Back");
+            if(!options.Contains("Go Back"))
+            {
+                options.Add("Go Back");
+
+            }
             return GetOptionFromMenu(options);
+        }
+
+        static string FileMenu(List<string> files)
+        {
+            if(!files.Contains("Go Back"))
+            {
+                files.Add("Go Back");
+            }
+            return GetOptionFromMenu(files);
         }
 
         static void ViewFile(string fileName)
@@ -221,8 +234,33 @@ namespace Diary
 
         static void Search()
         {
-
+            string phrase = GetSearchPhrase();
+            DisplaySearchResult(phrase);
         }
+
+        static void DisplaySearchResult(string phrase)
+        {
+            List<string> files = DiaryFile.GetFilesContaining(phrase);
+            string option = "";
+            while(option != "q" && option != "Go Back")
+            {
+                ClearConsole();
+                WriteMessage("Search results for: " + phrase + "\n");
+                option = FileMenu(files);
+                if(option != "q" && option != "Go Back")
+                {
+                    ViewFile(option);
+                }
+            }
+        }
+
+        static string GetSearchPhrase()
+        {
+            ClearConsole();
+            WriteMessage("Type search phrase and press enter:\n");
+            return Console.ReadLine();
+        }
+
 
         static void EditMenu()
         {
