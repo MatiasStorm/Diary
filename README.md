@@ -4,8 +4,8 @@ A console diary program where one can write about their day and get it saved to 
 ## Features:
 - Create a new file each day.
 - View excisting files.
-- Search all files.
-- File editing.
+- Search for keywords in all files.
+- Edit files.
 
 ## What i have learned:
 -	Writting, reading and editing files.
